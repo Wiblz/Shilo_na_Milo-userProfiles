@@ -5,5 +5,10 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserProfileRepository : MongoRepository<UserProfile, Long> {
-    fun findByUsernameLike(query: String) : List<UserProfile>
+
+    fun findOneByUsername(query: String) : UserProfile?
+
+    fun findByFullName(query: String) : List<UserProfile>
+
+    fun findByFullNameLike(word: String) : List<UserProfile>
 }

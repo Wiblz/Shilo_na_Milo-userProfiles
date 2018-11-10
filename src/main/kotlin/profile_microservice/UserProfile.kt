@@ -9,6 +9,7 @@ data class UserProfile (
         var username: String,
         var firstName: String,
         var secondName: String,
+        var fullName: String = "$firstName $secondName", // this field is for faster search only
         var emailAddress: String,
         var rating: Double?,
         var description: String?,

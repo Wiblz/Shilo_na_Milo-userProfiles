@@ -17,7 +17,6 @@ class Controller {
 
     @GetMapping(path=["/{id}"])
     fun getProfile(@PathVariable id: Long) : Mono<UserProfile> {
-
         return userProfileRepository.findById(id)
     }
 
@@ -36,6 +35,7 @@ class Controller {
         return Flux.fromIterable(words)
                    .flatMap(userProfileRepository::findByFullNameLike)
                    .mergeWith(result)
+                   .distinct()
     }
 
     @GetMapping(path=["/generate_wallet"])
@@ -44,10 +44,9 @@ class Controller {
                      .uri("/generate")
                      .retrieve()
                      .bodyToMono(String::class.java)
-                     .log()
-                     .flatMap { s ->
+                     .flatMap { address ->
                          userProfileRepository.findById(id)
-                                              .map { it.walletAddress = s; it }
+                                              .map { it.walletAddress = address; it }
                                               .flatMap { userProfileRepository.save(it) }
                                               .map { it.walletAddress }
                      }
@@ -56,7 +55,7 @@ class Controller {
     @GetMapping(path=["/wallet"])
     fun getWallet(@RequestParam("id") id: Long) : Mono<String> {
         return Mono.just(id).flatMap(userProfileRepository::findById)
-                            .map {a -> a.walletAddress}
+                            .map { it.walletAddress }
                             .defaultIfEmpty("null")
     }
 

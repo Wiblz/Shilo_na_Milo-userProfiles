@@ -1,9 +1,10 @@
 package profile_microservice
 
+import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.reactive.function.client.WebClient
-import profile_microservice.utils.addNotNull
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @RestController
@@ -15,56 +16,59 @@ class Controller {
     val client = WebClient.create("https://9ef84859-75bd-434b-9e49-f6a888a6e146.mock.pstmn.io")
 
     @GetMapping(path=["/{id}"])
-    fun getProfile(@PathVariable id:Long) : UserProfile {
-        return userProfileRepository.findById(id).get()
+    fun getProfile(@PathVariable id: Long) : Mono<UserProfile> {
+
+        return userProfileRepository.findById(id)
     }
 
     @GetMapping(path=["/search"])
-    fun searchProfiles(@RequestParam("query") query:String) : Set<UserProfile> {
+    fun searchProfiles(@RequestParam("query") query: String) : Publisher<UserProfile> {
         val query = query.trim()
         val words = query.split(" ")
-        val result = HashSet<UserProfile>()
+        val result : Publisher<UserProfile>
 
-        when (words.size) {
-            1 -> result.addNotNull(userProfileRepository.findOneByUsername(words[0]))
-            2 -> result.addAll(userProfileRepository.findByFullName(query))
+        result = when (words.size) {
+            1 -> userProfileRepository.findOneByUsername(words[0])
+            2 -> userProfileRepository.findByFullName(query)
+            else -> Flux.empty()
         }
 
-        for (word in words) {
-            result.addAll(userProfileRepository.findByFullNameLike(word))
-        }
-
-        return result
+        return Flux.fromIterable(words)
+                   .flatMap(userProfileRepository::findByFullNameLike)
+                   .mergeWith(result)
     }
 
     @GetMapping(path=["/generate_wallet"])
-    fun generateWalletAddress(@RequestParam("id") id:Long) : Mono<String> {
+    fun generateWalletAddress(@RequestParam("id") id: Long) : Mono<String> {
         return client.get()
                      .uri("/generate")
                      .retrieve()
                      .bodyToMono(String::class.java)
-                     .map { s ->
-                         val user = userProfileRepository.findById_(id)
-                         user?.walletAddress = s
-                         userProfileRepository.save(user)
-                         s
+                     .log()
+                     .flatMap { s ->
+                         userProfileRepository.findById(id)
+                                              .map { it.walletAddress = s; it }
+                                              .flatMap { userProfileRepository.save(it) }
+                                              .map { it.walletAddress }
                      }
     }
 
     @GetMapping(path=["/wallet"])
-    fun getWallet(@RequestParam("id") id:Long) : String {
-        return userProfileRepository.findById_(id)?.walletAddress ?: "null"
+    fun getWallet(@RequestParam("id") id: Long) : Mono<String> {
+        return Mono.just(id).flatMap(userProfileRepository::findById)
+                            .map {a -> a.walletAddress}
+                            .defaultIfEmpty("null")
     }
 
     @PostMapping(path=["/update"], consumes=["application/json"])
-    fun updateSingleProfile(@RequestBody userProfile:UserProfile) {
-        userProfileRepository.save(userProfile)
+    fun updateSingleProfile(@RequestBody userProfile: UserProfile) : Mono<Void> {
+        return userProfileRepository.save(userProfile)
+                                    .then()
     }
 
     @PostMapping(path=["/batch_update"], consumes=["application/json"])
-    fun updateProfiles(@RequestBody userProfiles:Array<UserProfile>) {
-        for (profile in userProfiles) {
-            userProfileRepository.save(profile)
-        }
+    fun updateProfiles(@RequestBody userProfiles: Publisher<UserProfile>) : Mono<Void> {
+        return userProfileRepository.saveAll(userProfiles)
+                                    .then()
     }
 }

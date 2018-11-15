@@ -11,9 +11,9 @@ data class UserProfile (
         var secondName: String,
         var fullName: String = "$firstName $secondName", // this field is for faster search only
         var emailAddress: String,
-        var rating: Double?,
-        var description: String?,
-        var walletAddress: String?,
-        var location: String?,
-        var profilePicturePath: String?
+        var rating: Double = 0.0,
+        var description: String = "",
+        var walletAddress: String = "",
+        var location: String = "",
+        var profilePicturePath: String = ""
         )

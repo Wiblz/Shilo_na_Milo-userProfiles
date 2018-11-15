@@ -8,6 +8,8 @@ interface UserProfileRepository : MongoRepository<UserProfile, Long> {
 
     fun findOneByUsername(query: String) : UserProfile?
 
+    fun findById_(id: Long) : UserProfile?
+
     fun findByFullName(query: String) : List<UserProfile>
 
     fun findByFullNameLike(word: String) : List<UserProfile>

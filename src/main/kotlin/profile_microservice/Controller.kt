@@ -15,8 +15,8 @@ class Controller {
     // TODO: place an actual microservice address
     val client = WebClient.create("https://9ef84859-75bd-434b-9e49-f6a888a6e146.mock.pstmn.io")
 
-    @GetMapping(path=["/{id}"])
-    fun getProfile(@PathVariable id: Long) : Mono<UserProfile> {
+    @GetMapping(path=["/get"])
+    fun getProfile(@RequestParam("id") id: Long) : Mono<UserProfile> {
         return userProfileRepository.findById(id)
     }
 

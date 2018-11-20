@@ -49,7 +49,11 @@ dependencies {
 	implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	compile group: 'org.springframework.security', name: 'spring-security-config', version: '5.1.1.RELEASE'
+	compile group: 'org.springframework.security', name: 'spring-security-web', version: '5.1.1.RELEASE'
+	compile group: 'org.keycloak', name: 'keycloak-core', version: '4.6.0.Final'
+	compile group: 'org.keycloak', name: 'keycloak-spring-boot-starter', version: '4.6.0.Final'
 	compile 'org.springframework.boot:spring-boot-starter-webflux'
 	compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface UserProfileRepository : ReactiveMongoRepository<UserProfile, Long> {
+interface UserProfileRepository : ReactiveMongoRepository<UserProfile, String> {
 
     fun findOneByUsername(query: String) : Mono<UserProfile>
 

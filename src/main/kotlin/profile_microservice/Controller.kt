@@ -16,7 +16,7 @@ class Controller {
     val client = WebClient.create("https://9ef84859-75bd-434b-9e49-f6a888a6e146.mock.pstmn.io")
 
     @GetMapping(path=["/get"])
-    fun getProfile(@RequestParam("id") id: Long) : Mono<UserProfile> {
+    fun getProfile(@RequestParam("id") id: String) : Mono<UserProfile> {
         return userProfileRepository.findById(id)
     }
 
@@ -39,7 +39,7 @@ class Controller {
     }
 
     @GetMapping(path=["/generate_wallet"])
-    fun generateWalletAddress(@RequestParam("id") id: Long) : Mono<String> {
+    fun generateWalletAddress(@RequestParam("id") id: String) : Mono<String> {
         return client.get()
                      .uri("/generate")
                      .retrieve()
@@ -53,7 +53,7 @@ class Controller {
     }
 
     @GetMapping(path=["/wallet"])
-    fun getWallet(@RequestParam("id") id: Long) : Mono<String> {
+    fun getWallet(@RequestParam("id") id: String) : Mono<String> {
         return Mono.just(id).flatMap(userProfileRepository::findById)
                             .map { it.walletAddress }
                             .defaultIfEmpty("null")

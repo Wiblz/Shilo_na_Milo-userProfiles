@@ -8,17 +8,7 @@ import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.WebFluxConfigurer
 
 @SpringBootApplication
-open class Application {
-    @Configuration
-    @EnableWebFlux
-    open class WebConfig: WebFluxConfigurer {
-        override fun addCorsMappings(registry: CorsRegistry) {
-            registry.addMapping("/**")
-                    .allowedOrigins("*")
-                    .allowedMethods("*")
-        }
-    }
-}
+open class Application
 
 fun main(args: Array<String>) {
     runApplication<Application>(*args)

@@ -30,13 +30,13 @@ class Controller {
         val result : Publisher<UserProfile>
 
         result = when (words.size) {
-            1 -> userProfileRepository.findOneByUsername(words[0])
-            2 -> userProfileRepository.findByFullName(query)
+            1 -> userProfileRepository.findOneByUsernameIgnoreCase(words[0])
+            2 -> userProfileRepository.findByFullNameIgnoreCase(query)
             else -> Flux.empty()
         }
 
         return Flux.fromIterable(words)
-                   .flatMap(userProfileRepository::findByFullNameLike)
+                   .flatMap(userProfileRepository::findByFullNameLikeIgnoreCase)
                    .mergeWith(result)
                    .distinct()
     }
@@ -72,5 +72,11 @@ class Controller {
     fun updateProfiles(@RequestBody userProfiles: Publisher<UserProfile>) : Mono<Void> {
         return userProfileRepository.saveAll(userProfiles)
                                     .then()
+    }
+
+    @DeleteMapping(path=["/delete"])
+    fun deleteProfile(@RequestParam("id") id: String) : Mono<Long>{
+        return Mono.just(id)
+                   .flatMap(userProfileRepository::deleteById_)
     }
 }

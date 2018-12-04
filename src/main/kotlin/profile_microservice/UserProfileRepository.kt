@@ -8,9 +8,11 @@ import reactor.core.publisher.Mono
 
 interface UserProfileRepository : ReactiveMongoRepository<UserProfile, String> {
 
-    fun findOneByUsername(query: String) : Mono<UserProfile>
+    fun findOneByUsernameIgnoreCase(query: String) : Mono<UserProfile>
 
-    fun findByFullName(query: String) : Flux<UserProfile>
+    fun findByFullNameIgnoreCase(query: String) : Flux<UserProfile>
 
-    fun findByFullNameLike(word: String) : Flux<UserProfile>
+    fun findByFullNameLikeIgnoreCase(word: String) : Flux<UserProfile>
+
+    fun deleteById_(id: String) : Mono<Long>
 }

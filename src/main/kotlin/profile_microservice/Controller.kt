@@ -2,14 +2,17 @@ package profile_microservice
 
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
+@CrossOrigin
 @RestController
 @RequestMapping(path=["/profiles"])
 class Controller {
+
     @Autowired
     lateinit var userProfileRepository: UserProfileRepository
     // TODO: place an actual microservice address
